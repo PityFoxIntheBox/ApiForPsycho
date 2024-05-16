@@ -53,6 +53,8 @@ namespace ApiForPsycho
                 options.RoutePrefix = string.Empty;
             });
 
+            app.UseHttpsRedirection();
+
             app.Run();
         }
     }

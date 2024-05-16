@@ -34,5 +34,30 @@ namespace ApiForPsycho.Controllers
 
             }
         }
+
+        [Route("GetUsersForDoctor")]
+        [HttpGet]
+        public List<UsersTestResults> GetUsersForDoctor([FromQuery] int id)
+        {
+            using (PsychoTestsContext DB = new PsychoTestsContext())
+            {
+                List<UsersTestResults> utr = new List<UsersTestResults>();
+                List<User> users = DB.Users.Where(x => x.IdRole == 2 && x.IdDoctor == id).ToList();
+                foreach (var user in users)
+                {
+                    UsersTest ut = DB.UsersTests.Where(x => x.IdUser == user.UserId).Include("IdResultNavigation").FirstOrDefault();
+                    Result? rt = DB.Results.Where(x => x.ResultId == ut.IdResult).Include("IdTestNavigation").FirstOrDefault();
+                    utr.Add(new UsersTestResults
+                    {
+                        Id = user.UserId,
+                        Fullname = user.Surname + " " + user.Name + " " + user.Patronymic,
+                        NameOfResult = ut.IdResultNavigation.ResultName,
+                        NameOfTest = rt.IdTestNavigation.TestName
+                    });
+                }
+                return utr;
+
+            }
+        }
     }
 }
